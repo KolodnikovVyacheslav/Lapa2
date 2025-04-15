@@ -3,16 +3,29 @@ package Evaluator;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Класс Evaluator позволяет вычислять арифметические выражения,
+ * поддерживая переменные, базовые математические функции и операторы.
+ * Реализация использует алгоритм перевода в обратную польскую нотацию (ОПН)
+ * и стековую модель вычисления.
+ */
 public class Evaluator {
 
+    /** Хранилище переменных и их значений */
     private final Map<String, Double> variables = new HashMap<>();
+
+    /** Сканер для чтения значений переменных с консоли */
     private final Scanner scanner = new Scanner(System.in);
 
+    /** Поддерживаемые операторы */
     private static final Set<String> OPERATORS = Set.of("+", "-", "*", "/", "^");
+
+    /** Приоритеты операторов */
     private static final Map<String, Integer> PRECEDENCE = Map.of(
             "+", 1, "-", 1, "*", 2, "/", 2, "^", 3
     );
 
+    /** Поддерживаемые математические функции */
     private static final Map<String, Function<Double, Double>> FUNCTIONS = Map.of(
             "sin", Math::sin,
             "cos", Math::cos,
@@ -21,12 +34,24 @@ public class Evaluator {
             "abs", Math::abs
     );
 
+    /**
+     * Главный метод вычисления выражения.
+     *
+     * @param expression строка выражения
+     * @return результат вычисления
+     */
     public double evaluate(String expression) {
         List<String> tokens = parseTokens(expression.replaceAll("\\s+", ""));
         List<String> postfix = convertToPostfix(tokens);
         return evaluatePostfix(postfix);
     }
 
+    /**
+     * Разделяет строку выражения на токены (числа, переменные, функции, операторы).
+     *
+     * @param input строка выражения
+     * @return список токенов
+     */
     private List<String> parseTokens(String input) {
         List<String> tokens = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -58,6 +83,12 @@ public class Evaluator {
         return tokens;
     }
 
+    /**
+     * Преобразует токены выражения в обратную польскую нотацию.
+     *
+     * @param tokens список токенов
+     * @return список токенов в ОПН
+     */
     private List<String> convertToPostfix(List<String> tokens) {
         List<String> output = new ArrayList<>();
         Deque<String> stack = new ArrayDeque<>();
@@ -101,6 +132,12 @@ public class Evaluator {
         return output;
     }
 
+    /**
+     * Вычисляет выражение в обратной польской нотации.
+     *
+     * @param tokens список токенов в ОПН
+     * @return результат вычисления
+     */
     private double evaluatePostfix(List<String> tokens) {
         Deque<Double> stack = new ArrayDeque<>();
 
@@ -125,6 +162,14 @@ public class Evaluator {
         return stack.pop();
     }
 
+    /**
+     * Применяет оператор к двум числам.
+     *
+     * @param op оператор
+     * @param a первый аргумент
+     * @param b второй аргумент
+     * @return результат операции
+     */
     private double applyOperator(String op, double a, double b) {
         return switch (op) {
             case "+" -> a + b;
@@ -139,14 +184,32 @@ public class Evaluator {
         };
     }
 
+    /**
+     * Проверяет, является ли токен числом.
+     *
+     * @param token токен
+     * @return true, если это число
+     */
     private boolean isNumber(String token) {
         return token.matches("\\d+(\\.\\d+)?");
     }
 
+    /**
+     * Проверяет, является ли токен переменной.
+     *
+     * @param token токен
+     * @return true, если это переменная
+     */
     private boolean isVariable(String token) {
         return token.matches("[a-zA-Z]+") && !FUNCTIONS.containsKey(token);
     }
 
+    /**
+     * Получает значение переменной, запрашивая у пользователя, если оно ещё не задано.
+     *
+     * @param var имя переменной
+     * @return значение переменной
+     */
     private double getVariableValue(String var) {
         if (!variables.containsKey(var)) {
             System.out.print("Введите значение переменной " + var + ": ");
